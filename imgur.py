@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+#just a little info before any of you try using my code, i have no idea what i'm doing, and there WILL be bugs
+
 import pycurl
 import re
 import os.path
@@ -9,29 +11,31 @@ def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
     if re.search("http:\/\/",  pLoc):
-        return cUpload(pLoc,  1)
+        print cUpload(pLoc,  1)
     else: 
-        return cUpload(imgLoc,  0)
-
+        xml = cUpload(pLoc,  0)
+        print re.match("<original_image>(.*)</original_image>", xml)
+    
+    
+        
+        
 def cUpload(imgLoc, isURL): 
     cPost = pycurl.Curl()
     
     if isURL == 1:
-        # if os.path.isfile("/tmp/imgurTmpImg") == true: os.unlink("/tmp/imgurTmpImg")
         tmpFile = "/tmp/imgurTmpImg"
+        if os.path.isfile(tmpFile) is True: os.unlink(tmpFile)
         tmpFileLoc = open(tmpFile,  "w")
         cGet  = pycurl.Curl()
         cGet.setopt(cGet.URL,  imgLoc)
         cGet.setopt(cGet.WRITEDATA,  tmpFileLoc)
-        cGet.setopt(cGet.VERBOSE,  1)
-        #cGet.perform()
-      #  output = open(tmpFileLoc,  "w")
-      # output.write(buffer.getvalue)
+        cGet.setopt(cGet.VERBOSE,  0)
+        cGet.perform()
         
         values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  tmpFile)) ]
         cGet.close
-        #output.close
         tmpFileLoc.close
+        os.unlink(tmpFile)
         
     
     if isURL == 0: values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  imgLoc)) ]
@@ -41,9 +45,8 @@ def cUpload(imgLoc, isURL):
     cPost.setopt(cPost.HTTPPOST, values)
     buffer = StringIO()
     cPost.setopt(cPost.WRITEFUNCTION,  buffer.write)
-    # if os.path.isfile("/tmp/imgurTmpImg") == true: os.unlink("/tmp/imgurTmpImg")
     cPost.perform()
-    return buffer.getvalue()
+    return str(buffer.getvalue())
     
 
-cUpload("./smiley2.png",  0)
+print pUpload("./smiley2.png")
