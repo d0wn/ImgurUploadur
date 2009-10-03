@@ -1,5 +1,8 @@
 ImgurUploadur 0.1a --
 
+Usage: ./imgur.py /path/to/file.jpg
+       ./imgur.py http://website.com/with/image.jpg
+
 ImgurUploadur is [planned to be] an image uploader in Python to upload to imgur.com
 
 Dependencies: pycurl    http://pycurl.sourceforge.net/
