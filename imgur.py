@@ -5,21 +5,27 @@
 import pycurl
 import re
 import os.path
+import sys
+from elementtree import ElementTree as ET
 from cStringIO import StringIO
 
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
-    if re.search("http:\/\/",  pLoc):
-        print cUpload(pLoc,  1)
-    else: 
-        xml = cUpload(pLoc,  0)
-        print re.match("<original_image>(.*)</original_image>", xml)
+    if re.search("(http|https):\/\/",  pLoc): isURL = 1
+    else: isURL = 0
     
-    
+    xml = cUpload(pLoc,  isURL)
+    element = ET.XML(xml)
+    if element.attrib['stat'] == "ok":
+        return element.find("original_image").text
+    elif element.attrib['stat'] == "fail": 
+        return "Error" # Vague for now. Still have to parse the error codes
         
-        
+
 def cUpload(imgLoc, isURL): 
+    # Function to process the HTTP POST and GET requests.
+    # Depends on pycurl module
     cPost = pycurl.Curl()
     
     if isURL == 1:
@@ -35,7 +41,6 @@ def cUpload(imgLoc, isURL):
         values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  tmpFile)) ]
         cGet.close
         tmpFileLoc.close
-        os.unlink(tmpFile)
         
     
     if isURL == 0: values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  imgLoc)) ]
@@ -46,7 +51,9 @@ def cUpload(imgLoc, isURL):
     buffer = StringIO()
     cPost.setopt(cPost.WRITEFUNCTION,  buffer.write)
     cPost.perform()
-    return str(buffer.getvalue())
+    return buffer.getvalue()
     
+if __name__ == "__main__":
+        print pUpload(sys.argv[1])
 
-print pUpload("./smiley2.png")
+
