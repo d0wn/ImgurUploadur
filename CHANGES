@@ -1,2 +1,3 @@
 Version 0.1a (9/24/09): Will begin logging changes after I get a successful URL returned
 
+Version 0.1a(10/3/09): pUpload() now parses cUpload()'s returned XML, and returns the image URL
