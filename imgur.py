@@ -12,16 +12,25 @@ from cStringIO import StringIO
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
+    # Depends on elementtree
     if re.search("(http|https):\/\/",  pLoc): isURL = 1
     else: isURL = 0
     
     xml = cUpload(pLoc,  isURL)
     element = ET.XML(xml)
+    
     if element.attrib['stat'] == "ok":
-        return element.find("original_image").text
+        # parses needed text into a dict, and returns it
+        element_array = { "image_hash": element.find("image_hash").text, 
+                                     "delete_hash": element.find("delete_hash").text, 
+                                     "original_image": element.find("original_image").text, 
+                                     "large_thumbnail": element.find("large_thumbnail").text, 
+                                     "small_thumbnail": element.find("small_thumbnail").text, 
+                                     "imgur_page": element.find("imgur_page").text, 
+                                     "delete_page": element.find("delete_page").text }
+        return element_array
     elif element.attrib['stat'] == "fail": 
-        return "Error" # Vague for now. Still have to parse the error codes
-        
+        return "Error" # Vague for now
 
 def cUpload(imgLoc, isURL): 
     # Function to process the HTTP POST and GET requests.
@@ -54,6 +63,8 @@ def cUpload(imgLoc, isURL):
     return buffer.getvalue()
     
 if __name__ == "__main__":
-        print pUpload(sys.argv[1])
+    # This is just temporary. This will be changing often
+    parse = pUpload(sys.argv[1])
+    print parse['original_image'] # prints link
 
 
