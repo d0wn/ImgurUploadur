@@ -1,3 +1,7 @@
 Version 0.1a (9/24/09): Will begin logging changes after I get a successful URL returned
 
 Version 0.1a(10/3/09): pUpload() now parses cUpload()'s returned XML, and returns the image URL
+
+Version 0.1a(10/4/09): When pUpload() is called now, it will return a dict containing all of the parsed XML, if the response is OK
+
+
