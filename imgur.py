@@ -52,22 +52,11 @@ def cUpload(imgLoc, isURL):
     # Depends on pycurl module
     cPost = pycurl.Curl()
     
-    if isURL == 1:
-        tmpFile = "/tmp/imgurTmpImg"
-        if os.path.isfile(tmpFile) is True: os.unlink(tmpFile)
-        tmpFileLoc = open(tmpFile,  "w")
-        cGet  = pycurl.Curl()
-        cGet.setopt(cGet.URL,  imgLoc)
-        cGet.setopt(cGet.WRITEDATA,  tmpFileLoc)
-        cGet.setopt(cGet.VERBOSE,  0)
-        cGet.perform()
-        
-        values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  tmpFile)) ]
-        cGet.close
-        tmpFileLoc.close
-        
+    values = [("key", "c4eb08d39a32e5a71c3df7225f137f06221476db")]
     
-    if isURL == 0: values = [ ("key", "c4eb08d39a32e5a71c3df7225f137f06221476db"),  ("image", (cPost.FORM_FILE,  imgLoc)) ]
+    if isURL == 0: values.append(("image", (cPost.FORM_FILE,  imgLoc)))
+    if isURL == 1: values.append(("image", imgLoc))
+    
     cPost.setopt(cPost.POST, 1)
     cPost.setopt(cPost.VERBOSE,  0)
     cPost.setopt(cPost.URL, "http://imgur.com/api/upload/")
@@ -75,6 +64,7 @@ def cUpload(imgLoc, isURL):
     buffer = StringIO()
     cPost.setopt(cPost.WRITEFUNCTION,  buffer.write)
     cPost.perform()
+    
     return buffer.getvalue()
     
 if __name__ == "__main__":
