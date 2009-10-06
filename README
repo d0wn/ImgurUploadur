@@ -1,6 +1,6 @@
 ImgurUploadur 0.1a --
 
-ImgurUploadur is [planned to be] an image uploader in Python to upload to imgur.com
+ImgurUploadur is an image uploader in Python to upload to imgur.com
 
 Usage: ./imgur.py /path/to/file.jpg
        ./imgur.py http://website.com/with/image.jpg
