@@ -4,4 +4,4 @@ Version 0.1a(10/3/09): pUpload() now parses cUpload()'s returned XML, and return
 
 Version 0.1a(10/4/09): When pUpload() is called now, it will return a dict containing all of the parsed XML, if the response is OK
 
-
+Version 0.1a(10/5/09): cUpload() now sends a URL directly to imgur.com instead of downloading the image to a /tmp/ file, then uploading it.
