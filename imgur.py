@@ -18,7 +18,6 @@ import pycurl
 import re
 import os.path
 import sys
-from cStringIO import StringIO
 
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
