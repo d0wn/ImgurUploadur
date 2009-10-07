@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # Copyright 2009 d0wn
 
-#just a little info before any of you try using my code, i have no idea what i'm doing, and there WILL be bugs
-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -21,13 +18,14 @@ import pycurl
 import re
 import os.path
 import sys
-from elementtree import ElementTree as ET
 from cStringIO import StringIO
 
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
     # Depends on elementtree
+    from elementtree import ElementTree as ET
+
     if re.search("(http|https):\/\/",  pLoc): isURL = 1
     else: isURL = 0
     
@@ -50,6 +48,8 @@ def pUpload(pLoc):
 def cUpload(imgLoc, isURL): 
     # Function to process the HTTP POST and GET requests.
     # Depends on pycurl module
+    from cStringIO import StringIO
+
     cPost = pycurl.Curl()
     
     values = [("key", "c4eb08d39a32e5a71c3df7225f137f06221476db")]
@@ -71,5 +71,6 @@ if __name__ == "__main__":
     # This is just temporary. This will be changing often
     parse = pUpload(sys.argv[1])
     print parse['original_image'] # prints link
+    print parse['delete_page']      # prints deletion link
 
 
