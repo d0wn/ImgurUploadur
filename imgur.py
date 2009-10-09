@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pycurl
 import re
 import os.path
 import sys
@@ -23,7 +22,6 @@ def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
     # Depends on elementtree
-    from elementtree import ElementTree as ET
 
     if re.search("(http|https):\/\/",  pLoc): isURL = 1
     else: isURL = 0
@@ -53,7 +51,10 @@ def cUpload(imgLoc, isURL):
     
     values = [("key", "c4eb08d39a32e5a71c3df7225f137f06221476db")]
     
-    if isURL == 0: values.append(("image", (cPost.FORM_FILE,  imgLoc)))
+    
+    if isURL == 0: 
+        if os.path.exists(imgLoc): # Checks if the file exists
+            values.append(("image", (cPost.FORM_FILE,  imgLoc)))
     if isURL == 1: values.append(("image", imgLoc))
     
     cPost.setopt(cPost.POST, 1)
@@ -67,7 +68,18 @@ def cUpload(imgLoc, isURL):
     return buffer.getvalue()
     
 if __name__ == "__main__":
-    # This is just temporary. This will be changing often
+    # Checks for all dependencies
+    try:
+        from elementtree import ElementTree as ET
+    except ImportError:
+        print "You do not have the elementtree module. Please visit http://effbot.org/downloads/#elementtree and download/install elementtree-1.2.6-20050316.tar.gz."
+        sys.exit()
+    try:
+        import pycurl
+    except ImportError:
+        print "You do not have the pycurl module. Please visit http://pycurl.sourceforge.net/."
+        sys.exit()
+
     parse = pUpload(sys.argv[1])
     print parse['original_image'] # prints link
     print parse['delete_page']      # prints deletion link
