@@ -10,3 +10,6 @@ Version 0.1b(10/7/09): Now includes imgur_install.py, which is a temporary quick
 
 Version 0.1b(10/9/09): Now checks for dependencies at startup. Checks if local files exist in cUpload before appending the location to the value list.
 
+Version 0.1b(10/9/09): Added Usage().
+
+
