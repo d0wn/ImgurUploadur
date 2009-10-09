@@ -18,6 +18,14 @@ import re
 import os.path
 import sys
 
+def Usage():
+    usage = "\n\tImgurUploadur v0.1b by d0wn" \
+                  "\n\thttp://github.com/d0wn/ImgurUploadur/\n" \
+                  "\nUsage: ./imgur.py [Local file | URL]\n" \
+                  "or       imgur  [Local file | URL]\n\n"
+    
+    return usage
+
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
@@ -80,6 +88,9 @@ if __name__ == "__main__":
         print "You do not have the pycurl module. Please visit http://pycurl.sourceforge.net/."
         sys.exit()
 
+    if len(sys.argv) == 1:
+        print Usage()
+        sys.exit()
     parse = pUpload(sys.argv[1])
     print parse['original_image'] # prints link
     print parse['delete_page']      # prints deletion link
