@@ -12,4 +12,4 @@ Version 0.1b(10/9/09): Now checks for dependencies at startup. Checks if local f
 
 Version 0.1b(10/9/09): Added Usage().
 
-
+Version 0.1(11/8/09): Finished error parsing. Moved to version 0.1
