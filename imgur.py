@@ -45,10 +45,13 @@ def pUpload(pLoc):
                                      "large_thumbnail": element.find("large_thumbnail").text, 
                                      "small_thumbnail": element.find("small_thumbnail").text, 
                                      "imgur_page": element.find("imgur_page").text, 
-                                     "delete_page": element.find("delete_page").text }
+                                     "delete_page": element.find("delete_page").text, 
+                                     "xml": xml }
         return element_array
     elif element.attrib['stat'] == "fail": 
-        return "Error" # Vague for now
+        error_return = {"error_code": element.find("error_code").text, 
+                                 "error_msg": element.find("error_msg").text }
+        return error_return
 
 def cUpload(imgLoc, isURL): 
     # Function to process the HTTP POST and GET requests.
@@ -67,7 +70,7 @@ def cUpload(imgLoc, isURL):
     
     cPost.setopt(cPost.POST, 1)
     cPost.setopt(cPost.VERBOSE,  0)
-    cPost.setopt(cPost.URL, "http://imgur.com/api/upload/")
+    cPost.setopt(cPost.URL, "http://imgur.com/api/upload.xml")
     cPost.setopt(cPost.HTTPPOST, values)
     buffer = StringIO()
     cPost.setopt(cPost.WRITEFUNCTION,  buffer.write)
@@ -88,11 +91,13 @@ if __name__ == "__main__":
         print "You do not have the pycurl module. Please visit http://pycurl.sourceforge.net/."
         sys.exit()
 
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 or sys.argv[1] == "--help" or sys.argv[1] == "-h":
         print Usage()
         sys.exit()
     parse = pUpload(sys.argv[1])
-    print parse['original_image'] # prints link
-    print parse['delete_page']      # prints deletion link
-
+    
+    try:
+        print "Error %s: %s" % (parse["error_code"],  parse["error_msg"])
+    except KeyError:
+        print "%s\n%s" % (parse["original_image"], parse["delete_page"])
 
