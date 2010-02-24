@@ -1,4 +1,4 @@
-ImgurUploadur 0.1 --
+ImgurUploadur 0.2b -- http://github.com/d0wn/ImgurUploadur
 
 ImgurUploadur is an image uploader in Python to upload to imgur.com
 
@@ -6,7 +6,7 @@ Usage: ./imgur.py /path/to/file.jpg
        ./imgur.py http://website.com/with/image.jpg
 
 Dependencies: pycurl    http://pycurl.sourceforge.net/
-              elementtree    http://effbot.org/downloads/#elementtree
+              optparse
 
 
 
