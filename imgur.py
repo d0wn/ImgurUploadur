@@ -19,39 +19,48 @@ import os.path
 import sys
 
 def Usage():
-    usage = "\n\tImgurUploadur v0.1b by d0wn" \
-                  "\n\thttp://github.com/d0wn/ImgurUploadur/\n" \
-                  "\nUsage: ./imgur.py [Local file | URL]\n" \
-                  "or       imgur  [Local file | URL]\n\n"
+    usage = "\n\tImgurUploadur v0.2b by d0wn" \
+                  "\n\thttp://github.com/d0wn/ImgurUploadur/\n\n" \
+
     
-    return usage
+    print usage
+
+def getElementValue(nodelist):
+    """ From http://docs.python.org/library/xml.dom.minidom.html#dom-example """
+    rc = ""
+    for node in nodelist:
+        if node.nodeType == node.TEXT_NODE:
+            rc = rc + node.data
+    return rc
 
 def pUpload(pLoc):
     # Function to parse the API's XML and figure out if the image is a URL or local file 
     # talks to cUpload, the curl uploader
-    # Depends on elementtree
+    # Depends on xml.dom.minidom
 
     if re.search("(http|https):\/\/",  pLoc): isURL = 1
     else: isURL = 0
     
     xml = cUpload(pLoc,  isURL)
-    element = ET.XML(xml)
     
-    if element.attrib['stat'] == "ok":
-        # parses needed text into a dict, and returns it
-        element_array = { "image_hash": element.find("image_hash").text, 
-                                     "delete_hash": element.find("delete_hash").text, 
-                                     "original_image": element.find("original_image").text, 
-                                     "large_thumbnail": element.find("large_thumbnail").text, 
-                                     "small_thumbnail": element.find("small_thumbnail").text, 
-                                     "imgur_page": element.find("imgur_page").text, 
-                                     "delete_page": element.find("delete_page").text, 
-                                     "xml": xml }
-        return element_array
-    elif element.attrib['stat'] == "fail": 
-        error_return = {"error_code": element.find("error_code").text, 
-                                 "error_msg": element.find("error_msg").text }
-        return error_return
+    element = parseString(xml)
+    
+    attrib = element.getElementsByTagName("rsp")[0] # <rsp>
+    
+    if attrib.attributes.keys()[0] == u"stat": # Checks if the "stat" attribute exists on <rsp>
+        if attrib.attributes["stat"].value == u"ok": # <rsp stat="ok">? Checks if the "stat" attribute's value is "ok"
+            element_dict = {"image_hash": getElementValue(element.getElementsByTagName("image_hash")[0].childNodes),  # <image_hash>value</image_hash>
+                            "delete_hash": getElementValue(element.getElementsByTagName("delete_hash")[0].childNodes), # etc
+                            "original_image": getElementValue(element.getElementsByTagName("original_image")[0].childNodes), 
+                            "large_thumbnail": getElementValue(element.getElementsByTagName("large_thumbnail")[0].childNodes), 
+                            "small_thumbnail": getElementValue(element.getElementsByTagName("small_thumbnail")[0].childNodes), 
+                            "imgur_page": getElementValue(element.getElementsByTagName("imgur_page")[0].childNodes),
+                            "delete_page": getElementValue(element.getElementsByTagName("delete_page")[0].childNodes)}
+            return element_dict
+        if attrib.attributes["stat"].value == u"fail":
+            element_dict = {"error_code": getElementValue(element.getElementsByTagName("error_code")[0].childNodes), 
+                            "error_msg": getElementValue(element.getElementsByTagName("error_msg")[0].childNodes)}
+            return element_dict
 
 def cUpload(imgLoc, isURL): 
     # Function to process the HTTP POST and GET requests.
@@ -77,27 +86,46 @@ def cUpload(imgLoc, isURL):
     cPost.perform()
     
     return buffer.getvalue()
+ 
+def main():
+    option = optparse.OptionParser(usage="%prog [options] [FILE | URL]",  version="ImgurUploadur 0.2b")
+    option.add_option("-q", "--quiet",  action="store_true", 
+                      dest="quiet",  help="Print only the image URL to stdout")
+    (options,  args) = option.parse_args()
+    if len(args) == 0:
+        Usage()
+        option.print_help()
+        sys.exit()
+
+    parse = pUpload(args[0]) 
+    
+    try: # Check if there were any errors
+        print "Error %s: %s" % (parse["error_code"],  parse["error_msg"])
+    except KeyError: # Output image link and delete page if no errors are found
+        if options.quiet is True: # If -q or --quiet is passed, then output only the image link
+            output = (parse["original_image"])
+            sys.stdout.write("%s\n" % (output))
+        else:
+            output = (parse["original_image"],  parse["delete_page"])
+            sys.stdout.write("%s\n%s\n" % (output))
+            
     
 if __name__ == "__main__":
-    # Checks for all dependencies
+    # Checks for all dependencies before starting
     try:
-        from elementtree import ElementTree as ET
+        from xml.dom.minidom import parse,  parseString
     except ImportError:
-        print "You do not have the elementtree module. Please visit http://effbot.org/downloads/#elementtree and download/install elementtree-1.2.6-20050316.tar.gz."
+        print "Could not import xml.dom.minidom module"
         sys.exit()
     try:
         import pycurl
     except ImportError:
         print "You do not have the pycurl module. Please visit http://pycurl.sourceforge.net/."
         sys.exit()
-
-    if len(sys.argv) == 1 or sys.argv[1] == "--help" or sys.argv[1] == "-h":
-        print Usage()
-        sys.exit()
-    parse = pUpload(sys.argv[1])
-    
     try:
-        print "Error %s: %s" % (parse["error_code"],  parse["error_msg"])
-    except KeyError:
-        print "%s\n%s" % (parse["original_image"], parse["delete_page"])
+        import optparse
+    except ImportError:
+        print "Could not import optparse module."
+        sys.exit()
 
+    main() # Start main()
